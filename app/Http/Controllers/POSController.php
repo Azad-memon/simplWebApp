@@ -168,6 +168,7 @@ class POSController extends Controller
         $data['quantity'] = $request->qty;
         $data['ing_id'] = $request->ingredients ? json_decode($request->ingredients, true) : null;
         $data['branch_id'] = Auth::user()->branchstaff()->first()?->branch_id;
+        $data['notes']=$request->notes;
         // dd($data);
         $this->cartRepository->create($data);
 

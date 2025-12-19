@@ -19,7 +19,7 @@
                                     @endphp
                                         <div class="mb-3">
                                             <h6 class="text-capitalize">{{ $ing->ingredientCategory->name }}</h6>
-                                            <div class="row g-2">
+                                            <div class="row g-6">
                                                 @php
                                                     $defaultId = $ing->defaultIngredient->ing_id ?? null;
                                                     $ingredients = $ing->ingredientCategory->ingredients->sortByDesc(fn($ingredient) => $ingredient->ing_id == $defaultId);
@@ -33,7 +33,7 @@
                                                         $isDefault = $defaultId && $defaultId == $ingredient->ing_id;
                                                         $inputId = "ingredient-{$ing->ingredientCategory->id}-{$ingredient->ing_id}";
                                                     @endphp
-                                                    <div class="col-3">
+                                                    <div class="col-2">
                                                         <div class="form-check ingredient-item border rounded p-2">
                                                             <input
                                                                 type="{{ $ing->type == 'required' ? 'radio' : 'checkbox' }}"
@@ -72,10 +72,10 @@
         <h5 class="fw-bold text-primary mb-3">Addons</h5>
 
         {{-- ================= SINGLE ITEM CATEGORIES (ONE ROW) ================= --}}
-        <div class="row g-3 mb-4">
+        <div class="row g-6 mb-4">
             @foreach($addonIngredients as $addon)
                 @if(count($addon['others']) == 1)
-                    <div class="col-md-3 col-sm-6 col-12">
+                    <div class="col-md-2 col-sm-6 col-12">
                         <div class="mb-3">
                             <h6 class="text-capitalize mb-2">{{ $addon['name'] }}</h6>
 
@@ -111,12 +111,12 @@
         <div class="row g-3">
             @foreach($addonIngredients as $addon)
                 @if(count($addon['others']) > 1)
-                    <div class="row g-3">
+                    <div class="row g-6">
                         <div class="h-100 row g-2">
                             <h6 class="text-capitalize mb-3">{{ $addon['name'] }}</h6>
 
                             @foreach($addon['others'] as $opt)
-                                <div class="col-3">
+                                <div class="col-2">
                                                     <div class="form-check addon-item border rounded p-2">
                                                         <input type="checkbox"
                                                                data-category-id="{{ $addon['addon_id'] }}"
@@ -150,7 +150,4 @@
 
 
                 {{-- ================== Total Price Section ================== --}}
-                <div class="alert alert-info d-flex justify-content-between align-items-center mt-4">
-                    <span class="fw-bold">Total Price:</span>
-                    <span class="fs-5 fw-bold" id="product-total-price" data-base-price="0">Rs:0</span>
-                </div>
+              

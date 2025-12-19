@@ -445,6 +445,7 @@
           let subtotal = (price * qty) + (extraPrice * qty);
           let product_variant_id = $(".variant-radio:checked").val();
           var cartid = $('#cart-item-id').val() || '';
+          var orderitemNote= $("#item-note-text-cart").val() || '';
           if (cartid != "") {
               $.ajax({
                   url: "{{ route('pos.cart.update') }}", //
@@ -456,6 +457,7 @@
                       ingredients: JSON.stringify(formattedIngredients),
                       remove_ingredients: JSON.stringify(removeIngredients),
                       product_variant_id: product_variant_id,
+                      notes: orderitemNote,
                       qty: qty,
                   },
                   success: function(response) {
@@ -477,6 +479,7 @@
                       ingredients: JSON.stringify(formattedIngredients),
                       remove_ingredients: JSON.stringify(removeIngredients),
                       product_variant_id: product_variant_id,
+                      notes: orderitemNote,
                       qty: qty,
                   },
                   success: function(response) {
@@ -1354,7 +1357,7 @@ function loadReceipt(order_id) {
                   $(".countnum").html(response.count); // partial view reload
               },
               error: function() {
-                  alert("Something went wrong!");
+                //  alert("Something went wrong!");
               }
           });
       }

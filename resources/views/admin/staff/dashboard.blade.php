@@ -223,12 +223,21 @@
                 </div>
                 <div class="modal-body">
   <div class="row">
-    <!-- LEFT SIDE: Product Info -->
+
+    <!-- LEFT SIDE: Addons & Ingredients -->
+    <div class="col-md-8">
+      <div id="addons-ingredients-section">
+
+      </div>
+
+
+    </div>
+      <!-- RIGHT  SIDE: Product Info -->
     <div class="col-md-4 border-end">
       <div class="text-center mb-3">
         <img id="product-image" src="" alt="Product"
              class="img-fluid rounded shadow-sm"
-             style="max-height: 250px; object-fit: cover;">
+             style="max-height: 80px; object-fit: cover;">
       </div>
       <h4 id="product-name" class="mb-3 text-center"></h4>
 
@@ -245,15 +254,12 @@
       </div>
 
       <div class="product-variants mt-3"></div>
-    </div>
-
-    <!-- RIGHT SIDE: Addons & Ingredients -->
-    <div class="col-md-8">
-      <div id="addons-ingredients-section">
-
-      </div>
-
-      <!-- ACTION BUTTONS -->
+       <textarea id="item-note-text-cart" class="form-control" rows="3" placeholder="Write note for this item..."></textarea>
+        <div class="alert alert-info d-flex justify-content-between align-items-center mt-4">
+                    <span class="fw-bold">Total Price:</span>
+                    <span class="fs-5 fw-bold" id="product-total-price" data-base-price="0">Rs:0</span>
+        </div>
+       <!-- ACTION BUTTONS -->
       <div class="d-flex justify-content-end mt-3 align-items-end  h-100 py-5">
         <button class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" >Cancel</button>
         <button class="btn btn-primary" id="add-to-cart-btn" style="pointer-events: none; opacity: 0.6;" >
@@ -261,6 +267,7 @@
         </button>
       </div>
     </div>
+
   </div>
 </div>
     </div>
