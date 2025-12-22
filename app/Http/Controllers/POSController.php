@@ -74,7 +74,6 @@ class POSController extends Controller
         $categories = $this->categoryRepository->all();
         $products = $this->productRepository->all();
         $cart = $this->cartRepository->all("",'pos');
-
         return view('admin.staff.dashboard', compact('categories', 'products', 'cart'));
     }
 
@@ -139,28 +138,30 @@ class POSController extends Controller
 
     public function addcart(Request $request)
     {
-        //  dd($request->all());
+         // dd($request->all());
         $addons = $request->addons ? json_decode($request->addons, true) : [];
         $variant = $this->productVariantRepository->find($request->product_variant_id);
         $ingredients = $variant->ingredientCategories()->with('ingredients')->get();
-
+        $cartRemoveIng = $request->remove_ingredients ? json_decode($request->remove_ingredients, true) : [];
         $removedIngredients = [];
+       // dd($cartRemoveIng);
 
         foreach ($addons as $addon) {
+          //  print_r($addon);
             if (isset($addon['cat_id'], $addon['replace']) && $addon['replace'] == 1) {
 
                 // Match by pivot_ing_category_id instead of id
                 $matchedCategory = $ingredients->firstWhere('id', $addon['cat_id']);
                 if (! empty($matchedCategory->pivot->default_ing)) {
                     $removedIngredients[] = [
-                        'quantity' => (int) ($addon['quantity'] ?? 1),
+                        'quantity' => (int) ($addon['quantity'] ?? 0),
                         'size_id' => (int) ($addon['size_id'] ?? 1),
                         'ing_id' => (int) $matchedCategory->pivot->default_ing,
                     ];
                 }
             }
         }
-
+        $removedIngredients = array_merge($removedIngredients, $cartRemoveIng);
         $ingredients = $request->ingredients ? json_decode($request->ingredients, true) : [];
         $data['addons'] = array_merge($addons, $ingredients);
         $data['removed_ingredients'] = $removedIngredients ? $removedIngredients : null;
@@ -168,8 +169,7 @@ class POSController extends Controller
         $data['quantity'] = $request->qty;
         $data['ing_id'] = $request->ingredients ? json_decode($request->ingredients, true) : null;
         $data['branch_id'] = Auth::user()->branchstaff()->first()?->branch_id;
-        $data['notes']=$request->notes;
-        // dd($data);
+         //dd($data);
         $this->cartRepository->create($data);
 
         return response()->json(['message' => 'Cart updated successfully']);
@@ -367,6 +367,7 @@ class POSController extends Controller
         $data['quantity'] = $request->qty;
         $data['ing_id'] = $request->ingredients ? json_decode($request->ingredients, true) : null;
         $data['id'] = $request->cart_id;
+        $data['order_id'] = $request->order_id;
         // dump($data);
         $this->cartRepository->update($data);
 
@@ -546,7 +547,7 @@ class POSController extends Controller
 
         $order = $this->orderRepository->find($id);
 
-        // app(\App\Services\BranchStockService::class)->handleIngredientOut($order);
+         app(\App\Services\BranchStockService::class)->handleIngredientOut($order);
         // event(new \App\Events\OrderAccepted($order));
         $printerService = new StationPrintService;
         $getreciptData = $this->printReceiptOrderLocal($id);
@@ -682,6 +683,8 @@ class POSController extends Controller
             return redirect()->route('pos.index');
         }
         $ingredients = $this->ingredientRepository->all();
+       $ingredients = $ingredients->where('is_quantify', 1); // filtered Collection
+
         $staffId = auth()->id();
 
         $openingShift = ShiftCashNote::where('user_id', $staffId)
@@ -860,11 +863,11 @@ class POSController extends Controller
         $staffId = auth()->id();
         $branchId = auth()->user()->branchstaff()->first()?->branch_id;
         // ✅ 1. Get latest opening shift (regardless of date)
-        $currentOpening = ShiftIngredient::where('user_id', $staffId)
-            ->where('branch_id', $branchId)
-            ->where('entry_type', 'opening')
-            ->latest('created_at')
-            ->first();
+       $currentOpening = ShiftIngredient::where('user_id', $staffId)
+        ->where('branch_id', $branchId)
+        ->where('entry_type', 'opening')
+        ->latest('created_at')
+        ->first();
 
         // ✅ 2. Get the corresponding closing shift (if it exists after this opening)
         $closingShift = ShiftIngredient::where('branch_id', $branchId)
@@ -881,53 +884,56 @@ class POSController extends Controller
             ->first();
 
         // ✅ 4. Get current shift ingredients (still active even if midnight passed)
-        $currentIngredients = collect();
+        $currentIngredients = null;
+
         if ($currentOpening) {
+
             $query = ShiftIngredient::with('ingredient')
                 ->where('branch_id', $branchId)
                 ->where('user_id', $staffId)
-               // ->where('shift_id', $currentOpening->shift_id)
-                ->where('entry_type', 'opening');
+                ->where('entry_type', 'opening')
+                ->where('created_at', '>=', $currentOpening->created_at); // 🔥 IMPORTANT
 
             if ($closingShift) {
-
                 $query->where('created_at', '<=', $closingShift->created_at);
-            } else {
-
-                $query->whereDate('created_at', '>=', $currentOpening->created_at->toDateString());
             }
 
-            $currentIngredients = $query->get();
-        }
-
-        // ✅ 5. Get previous shift ingredients
-        $previousIngredients = collect();
-        if ($previousShift) {
-            $previousIngredients = ShiftIngredient::with('ingredient')
-                ->where('shift_id', $previousShift->shift_id)
-                ->where('entry_type', 'closing')
+            $currentIngredients = $query
+                ->latest('created_at') // 🔥 LATEST
                 ->get();
         }
 
+        // ✅ 5. Get previous shift ingredients
+       $previousIngredients = collect();
+
+    if ($previousShift) {
+        $previousIngredients = ShiftIngredient::with('ingredient')
+            ->where('branch_id', $branchId)
+            ->where('entry_type', 'closing')
+            ->where('created_at', $previousShift->created_at)
+            ->get();
+    }
+// dd( $previousIngredients);
         // ✅ 6. Prepare summary
-        $summary = $currentIngredients
-            ->groupBy('ingredient_id')
-            ->map(function ($group) use ($previousIngredients) {
-                $currentQty = $group->sum('quantity');
-                $item = $group->first();
+        $summary = [];
 
-                $prev = $previousIngredients->firstWhere('ingredient_id', $item->ingredient_id);
-                $prevQty = $prev ? $prev->quantity : 0;
-                $diff = $currentQty - $prevQty;
+        foreach ($currentIngredients as $item) {
 
-                return [
-                    'ingredient_name' => $item->ingredient->first()->ing_name ?? 'Unknown ',
-                    'previous_qty' => $prevQty,
-                    'current_qty' => $currentQty,
-                    'difference' => $diff,
-                ];
-            })
-            ->values();
+            $currentQty = $item->quantity ?? 0;
+
+            $prev = $previousIngredients->firstWhere('ingredient_id', $item->ingredient_id);
+            $prevQty = $prev ? $prev->quantity : 0;
+
+            $summary[] = [
+                'ingredient_name' => optional($item->ingredient->first())->ing_name ?? 'Unknown',
+                'previous_qty'    => $prevQty,
+                'current_qty'     => $currentQty,
+                'difference'      => $currentQty - $prevQty,
+            ];
+        }
+
+// dd($summary);
+
 
         //    /dd($summary);
 
@@ -1147,6 +1153,8 @@ class POSController extends Controller
             'order_note' => $order->order_note,
             'change_return' => $order->change_return,
             'tax_percent' => $order->tax_percent,
+            
+
 
         ];
 
@@ -1499,4 +1507,63 @@ class POSController extends Controller
        return response()->json(['status' => true, 'count' => $count]);
 
     }
+/*Running order*/
+public function createRunningOrder(Request $request){
+
+        $data = $request->validate([
+                'customer_name' => 'string|nullable',
+                'customer_phone' => 'string|nullable',
+                'customer_email' => 'email|nullable',
+                'payment_method' => 'string|nullable',
+                'change_return' => 'numeric|nullable',
+                'order_type' => 'string|nullable',
+            ]);
+         $data['branch_id'] = Auth::user()->branchstaff()->first()?->branch_id;
+        // $customer = $this->customerRepository->createinvoiceCustomer($data);
+           $orderData = [
+            'customer_id' => $request->customer_id ? $request->customer_id : 0,
+            'dining_type' => $data['order_type'] == 'dine_in' ? Order::DINE_IN : Order::TAKE_AWAY,
+            'delivery_type' => $data['order_type'] == 'dine_in' ? Order::PICKUP : Order::DELIVERY,
+            'branch_id' => $data['branch_id'],
+            'customer_name' => $data['customer_name'],
+            'customer_phone' => $data['customer_phone'],
+            'customer_email' => $data['customer_email'],
+            'staff_id' => Auth::user()->id,
+            // 'total_amount' => $this->cartRepository->totalAmount(),
+            'paymentMethod' => $data['payment_method'],
+            'change_return' => $data['change_return'],
+            'platform' => 'pos',
+            'card_number' => $request->card_number,
+            'address_id' => 0,
+            // 'status' => 'pending',
+        ];
+        $couponCode = $request->coupon_code ?? null;
+        $order_platform = 'pos';
+        $cart = $this->cartRepository->all($couponCode, $order_platform);
+         $order = $this->orderRepository->runningOreder($orderData, $cart);
+         //dd( $order);
+
+        // Payment processing logic here (e.g., integrating with a payment gateway)
+        if ($order) {
+            return response()->json(['status' => 'success', 'message' => 'Order placed successfully', 'order_id' => $order->id]);
+        }
+
+}
+public function runningOrders(Request $request){
+    $orders = $this->cartRepository->runningOrders();
+    //$orders = $orders->where(['branch_id' => Auth::user()->branchstaff()->first()?->branch_id,'status'=>'pending']);
+    return view('admin.staff.partials.running-orders', compact('orders'));
+
+}
+public function loadRunningOrder(Request $request){
+    $orderId = $request->order_id;
+    $order_platform= 'pos';
+    $cart = $this->cartRepository->findbyorderid($orderId,$couponCode = null, $order_platform);
+
+    if (!$cart) {
+        return response()->json(['status' => false, 'error' => 'Order not found']);
+    }
+
+        return view('admin.staff.partials.cart', compact('cart'))->render();
+}
 }

@@ -404,7 +404,7 @@
                                         $getKOT['redirect_url'] = url()->current();
                                     @endphp
 
-                                <form action="http://localhost/PrinEscpos/Billrecipt.php" method="POST" target="_blank" class="d-inline">
+                                <form action="http://localhost/SimplPos/Billrecipt.php" method="POST" target="_blank" class="d-inline">
                                             @csrf <!-- Laravel CSRF token -->
                                             <input type="hidden" name="order" value="{{ htmlspecialchars(json_encode($getreciptData), ENT_QUOTES) }}">
                                             <button type="submit" class="btn btn-sm btn-primary me-2">
@@ -412,7 +412,7 @@
                                             </button>
                                 </form>
 
-                                        <form action="http://localhost/PrinEscpos/KotBill.php" method="POST"  class="d-inline">
+                                        <form action="http://localhost/SimplPos/KotBill.php" method="POST"  class="d-inline">
                                             @csrf
                                             <input type="hidden" name="order" value="{{ htmlspecialchars(json_encode($getKOT), ENT_QUOTES) }}">
                                             <button type="submit" class="btn btn-sm btn-warning text-white me-2">

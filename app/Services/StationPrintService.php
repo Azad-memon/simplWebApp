@@ -20,6 +20,8 @@ class StationPrintService
      */
     public function printOrderItems($order)
     {
+        $label= $order->order_type_label;
+        $order->order_type_label = $label;
         // Only print for active or preparing orders
         if (! in_array($order->status, ['active', 'processing'])) {
             return;
