@@ -22,7 +22,9 @@ class StationPrintService
     {
         $label= $order->order_type_label;
         $order->order_type_label = $label;
+        //dd($order);
         // Only print for active or preparing orders
+        $branch_id = $order->branch_id;
         if (! in_array($order->status, ['active', 'processing'])) {
             return;
         }
@@ -39,8 +41,9 @@ $stationsArray = [];
 foreach ($categoryIds as $categoryId) {
 
     // Get stations linked to this category
-    $stations = Station::whereHas('categories', function ($q) use ($categoryId) {
-        $q->where('categories.id', $categoryId);
+    $stations = Station::whereHas('categories', function ($q) use ($categoryId,$branch_id ) {
+        $q->where('categories.id', $categoryId)
+        ->where('branch_id',$branch_id);
     })->get();
 
     // Filter items for this category
