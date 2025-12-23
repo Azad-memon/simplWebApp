@@ -173,7 +173,7 @@
 
     <!-- Logo -->
     <div class="label-logo" style="text-align: center; margin-bottom: 3px;">
-        <img src="{{ asset('logoimage.jpeg') }}" alt="Logo" style="max-width: 20px; height: auto;">
+        <img src="https://pos.eatsimpl.co/Simpl.png" alt="Logo" style="max-width: 20px; height: auto;">
     </div>
 
     <div class="top-row">
