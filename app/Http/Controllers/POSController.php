@@ -1160,7 +1160,7 @@ class POSController extends Controller
 
         return $orderData;
         // Send GET request to local printer script
-        //      $response = Http::get('http://localhost/PrinEscpos/Billrecipt.php', [
+        //      $response = Http::get('http://localhost/SimplePos/Billrecipt.php', [
         //         'order' => json_encode($orderData)
         //     ]);
         // dd($response->body());

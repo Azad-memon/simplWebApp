@@ -130,7 +130,7 @@ return $stationsArray;
 //                 return $item;
 //             });
 //                // dump( $itemsToPrint);
-//              $response = Http::get('http://localhost/PrinEscpos/KotBill.php', [
+//              $response = Http::get('http://localhost/SimplePos/KotBill.php', [
 //                 'station' => json_encode($station)
 //                 ,'order' => json_encode( $order),
 //                 'items' => json_encode( $itemsToPrint),

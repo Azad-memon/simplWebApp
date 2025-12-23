@@ -972,7 +972,7 @@ function loadReceipt(order_id) {
             <i class="bi bi-printer"></i> Bill Receipt
         </button>
 
-        <form id="form-receipt" action="http://localhost/PrinEscpos/Billrecipt.php" method="POST" target="_blank" style="display:none;">
+        <form id="form-receipt" action="http://localhost/SimplePos/Billrecipt.php" method="POST" target="_blank" style="display:none;">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="order" value='${JSON.stringify(response.getreciptData)}'>
         </form>
@@ -984,7 +984,7 @@ function loadReceipt(order_id) {
             <i class="bi bi-printer-fill"></i> Kitchen KOT
         </button>
 
-        <form id="form-kot" action="http://localhost/PrinEscpos/KotBill.php" method="POST" target="_blank" style="display:none;">
+        <form id="form-kot" action="http://localhost/SimplePos/KotBill.php" method="POST" target="_blank" style="display:none;">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="order" value='${JSON.stringify(response.getKOT)}'>
         </form>
