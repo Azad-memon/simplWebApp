@@ -27,7 +27,7 @@
 
         <!-- Brand -->
         <a class="navbar-brand fw-bold text-primary" href="{{ route('pos.index') }}">
-            <i class="fas fa-store me-2"></i>Loop POS
+            <i class="fas fa-store me-2"></i>Simpl POS
         </a>
 
         <!-- Toggle Button for Mobile -->
