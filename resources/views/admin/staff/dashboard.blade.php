@@ -142,7 +142,7 @@
 
                     <div class="d-flex align-items-center">
                         <select id="paymentType" class="form-select form-select-sm" style="width: 120px;">
-                            <option value="cash" data-tax="10">💵 Cash</option>
+                            <option value="cash" data-tax="15">💵 Cash</option>
                             <option value="card" data-tax="8">💳 Card</option>
                         </select>
                     </div>
