@@ -190,7 +190,7 @@ class Order extends Model
         $paymentMethod = strtolower($this->payment->payment_method ?? '');
 
         if ($paymentMethod === 'cash') {
-            return 10;
+            return 15;
         } elseif ($paymentMethod === 'card') {
             return 8;
         }
