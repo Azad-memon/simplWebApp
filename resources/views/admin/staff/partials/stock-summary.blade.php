@@ -1,6 +1,6 @@
 <h6 class="fw-bold mb-3">Stock Count Summary</h6>
 
-@if ($summary->isNotEmpty())
+@if ($summary!="")
     <table class="table table-sm table-bordered align-middle">
         <thead class="table-light">
             <tr>

@@ -789,11 +789,16 @@ class POSController extends Controller
             ->first();
 
         // ✅ Get closing shift after that (if any)
-        $closingShift = ShiftCashNote::where('user_id', $staffId)
+       $query = ShiftCashNote::where('user_id', $staffId)
             ->where('branch_id', $branchId)
-            ->where('entry_type', 'closing')
-            ->where('created_at', '>', optional($currentOpening)->created_at)
-            ->first();
+            ->where('entry_type', 'closing');
+
+        if ($currentOpening && $currentOpening->created_at) {
+            $query->where('created_at', '>', $currentOpening->created_at);
+        }
+
+        $closingShift = $query->first();
+                 //   dd("sadasdas");
 
         // ✅ Get notes between current opening & closing (or till now)
         $todayNotes = collect();
@@ -870,18 +875,24 @@ class POSController extends Controller
         ->first();
 
         // ✅ 2. Get the corresponding closing shift (if it exists after this opening)
-        $closingShift = ShiftIngredient::where('branch_id', $branchId)
-            ->where('entry_type', 'closing')
-            ->where('created_at', '>', optional($currentOpening)->created_at)
-            ->orderBy('created_at', 'asc')
-            ->first();
+       $query = ShiftIngredient::where('branch_id', $branchId)
+       ->where('entry_type', 'closing');
 
+        if ($currentOpening && $currentOpening->created_at) {
+            $query->where('created_at', '>', $currentOpening->created_at);
+        }
+
+        $closingShift = $query->orderBy('created_at', 'asc')->first();
+        
         // ✅ 3. Get previous shift (the one before this opening)
-        $previousShift = ShiftIngredient::where('branch_id', $branchId)
-            ->where('entry_type', 'closing')
-            ->where('created_at', '<', optional($currentOpening)->created_at)
-            ->orderBy('created_at', 'desc')
-            ->first();
+        $querypre = ShiftIngredient::where('branch_id', $branchId)
+       ->where('entry_type', 'closing');
+
+        if ($currentOpening && $currentOpening->created_at) {
+            $querypre->where('created_at', '<', $currentOpening->created_at);
+        }
+
+        $previousShift = $querypre->orderBy('created_at', 'desc')->first();
 
         // ✅ 4. Get current shift ingredients (still active even if midnight passed)
         $currentIngredients = null;
@@ -916,7 +927,7 @@ class POSController extends Controller
 // dd( $previousIngredients);
         // ✅ 6. Prepare summary
         $summary = [];
-
+        if($currentIngredients!=""){
         foreach ($currentIngredients as $item) {
 
             $currentQty = $item->quantity ?? 0;
@@ -931,8 +942,9 @@ class POSController extends Controller
                 'difference'      => $currentQty - $prevQty,
             ];
         }
+    }
 
-// dd($summary);
+
 
 
         //    /dd($summary);
