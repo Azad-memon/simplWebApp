@@ -189,6 +189,30 @@
         .timeline-item-modern:last-child {
             margin-bottom: 0;
         }
+         .queue-badge-dsg {
+    background: #f1f3f5;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 6px 14px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.queue-badge-dsg .queue-label {
+    display: block;
+    font-size: 11px;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.queue-badge-dsg .queue-number {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1;
+}
+
     </style>
 </head>
 
@@ -206,6 +230,13 @@
                 <button class="btn btn-sm btn-success"><i class="fas fa-check"></i> Accept</button>
                 <button class="btn btn-sm btn-info"><i class="fab fa-whatsapp"></i> WhatsApp Customer</button>
             </div> --}}
+             {{-- RIGHT : SOBER QUEUE --}}
+    @if(!empty($order->queue_number))
+        <div class="queue-badge-dsg">
+            <span class="queue-label">Queue</span>
+            <span class="queue-number">{{ $order->queue_number }}</span>
+        </div>
+    @endif
         </div>
         <div class="row">
             {{-- Customer Details --}}

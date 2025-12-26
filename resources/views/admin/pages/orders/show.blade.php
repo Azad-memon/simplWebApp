@@ -163,6 +163,29 @@
 .timeline-item-modern.cancelled .timeline-content-modern {
     border-left: 3px solid #dc3545;
 }
+.queue-number-box {
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 110px;
+}
+
+.queue-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.queue-number {
+    display: block;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+}
+
     </style>
 @endsection
 
@@ -193,6 +216,16 @@
                     </p>
                 </div>
             </div>
+             {{-- RIGHT SIDE : QUEUE NUMBER --}}
+    @if(!empty($order->queue_number))
+        <div class="text-end">
+            <div class="queue-number-box">
+                <span class="queue-label">QUEUE</span>
+                <span class="queue-number">{{ $order->queue_number }}</span>
+            </div>
+        </div>
+    @endif
+
 
             {{-- 🔥 Status Update Form --}}
             <div>

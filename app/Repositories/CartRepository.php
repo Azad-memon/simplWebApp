@@ -24,7 +24,7 @@ class CartRepository implements CartRepositoryInterface
         if($order_platform=="pos"){
            // dd(Auth::user()->branchstaff()->first()?->branch_id);
              $carts = Cart::with(['items.productVariant.product.addons.addonable.images', 'items.productVariant.sizes'])
-            //->where("user_id", Auth::id())
+            ->where("user_id", Auth::id())
             ->where("branch_id", Auth::user()->branchstaff()->first()?->branch_id)
             ->first();
            // dd( $carts );

@@ -159,6 +159,16 @@
         justify-content: space-between !important;
         margin-top: 10px !important;
     }
+     .powerby {
+        font-size: 6px !important;
+        justify-content: space-between !important;
+        margin-top: 10px !important;
+        text-align: center !important;
+    }
+    .customer-name{
+    font-size: 10px;
+    font-weight: bold;
+}
 }
 
 </style>
@@ -205,6 +215,13 @@
     <div class="footer">
         <div>{{ now()->format('d/m/Y H:i') }}</div>
         <div>{{ $item->order->order_uid ?? '' }}</div>
+    </div>
+     <div class="customer-name">
+    {{ $order->customer_name ?? '' }}
+    </div>
+     <div class="powerby" style="text-align: center">
+        <div>Powered by DoodlenDash</div>
+
     </div>
 
 </div>
